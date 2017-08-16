@@ -848,6 +848,138 @@ ll nModP(ll n,ll p)
 
 
 
+Check whether a substring is palindrome or not.
+Update a character of the string.
+SegTree update,SegTree query.
+Double Hashing.
+
+Code:
+
+#define pr 7
+#define pr2 89
+#define MAX 100100
+#define MOD 1000000007
+#define MOD2 1073676287
+#define ll long long
+#define pll pair<long long,long long>
+#define left st,(st+en)/2 , n+n
+#define right (st+en)/2+1 ,en, n+n+1
+
+pll tree[4*MAX],tree_rev[4*MAX],zero;
+ll po[MAX+10],po2[MAX+10];
+char str[MAX],revstr[MAX],com[15];
+
+void pre()
+{
+    po[0] = po2[0] = 1;
+
+    for(int i=1; i<MAX; i++)
+    {
+        po[i] = (po[i-1]*pr);
+        po2[i] = (po2[i-1]*pr2);
+    }
+}
+
+void build(int st,int en,int n,bool rev)
+{
+    if(st==en)
+    {
+        if(!rev)
+        {
+            tree[n].first = ((str[st]-'a'+1)*(po[st]));
+            tree[n].second = ((str[st]-'a'+1)*(po2[st]));
+            return;
+        }
+        else
+        {
+            tree_rev[n].first = ((revstr[st]-'a'+1)*(po[st]));
+            tree_rev[n].second = ((revstr[st]-'a'+1)*(po2[st]));
+            return;
+        }
+    }
+    build(left,rev);
+    build(right,rev);
+
+    if(!rev)
+    {
+        tree[n].first = (tree[n+n].first + tree[n+n+1].first);
+        tree[n].second = (tree[n+n].second + tree[n+n+1].second);
+    }
+    else
+    {
+        tree_rev[n].first = (tree_rev[n+n].first + tree_rev[n+n+1].first);
+        tree_rev[n].second = (tree_rev[n+n].second + tree_rev[n+n+1].second);
+    }
+}
+
+void update(int st,int en,int n,int idx,ll val,bool rev)
+{
+    if(idx>en || st>idx || st>en) return;
+
+    if(st==en)
+    {
+        if(!rev)
+        {
+            tree[n].first = (po[idx]*val);
+            tree[n].second = (po2[idx]*val);
+            return;
+        }
+        else
+        {
+            tree_rev[n].first = (po[idx]*val);
+            tree_rev[n].second = (po2[idx]*val);
+            return;
+        }
+    }
+    update(left,idx,val,rev);
+    update(right,idx,val,rev);
+    if(!rev)
+    {
+        tree[n].first = (tree[n+n].first + tree[n+n+1].first);
+        tree[n].second = (tree[n+n].second + tree[n+n+1].second);
+    }
+    else
+    {
+        tree_rev[n].first = (tree_rev[n+n].first + tree_rev[n+n+1].first);
+        tree_rev[n].second = (tree_rev[n+n].second + tree_rev[n+n+1].second);
+    }
+}
+
+pll query(int st,int en,int n,int l,int r,bool rev)
+{
+    if(l>en || st>r) return zero;
+
+    if(st>=l && en<=r)
+    {
+        if(!rev) return tree[n];
+        else return tree_rev[n];
+    }
+    pll q1 = query(left,l,r,rev);
+    pll q2 = query(right,l,r,rev);
+
+    return {(q1.first+q2.first), (q1.second+q2.second)};
+}
+
+bool final_query(pll q1,pll q2,ll l,ll r,ll len)
+{
+    if((l-1)<(len-r))
+    {
+        q1.first = (q1.first*po[len-r-l+1]);
+        q1.second = (q1.second*po2[len-r-l+1]);
+    }
+    else
+    {
+        q2.first = (q2.first*po[l-1-len+r]);
+        q2.second = (q2.second*po2[l-1-len+r]);
+    }
+    if(q1==q2) return true;
+            return false;
+}
+///q1 = query(0,len-1,1,l-1,r-1,0);
+///q2 = query(0,len-1,1,len-r,len-l,1);
+///if(final_query(q1,q2,l,r,len)) printf("Substring is palindrome\n");
+///            else printf("Substring is not palindrome\n");
+
 
 
 
