@@ -1,2 +1,2 @@
 # codelibrary
-It is my code library
+Implementation of well-known algorithms and library
